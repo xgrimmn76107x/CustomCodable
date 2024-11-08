@@ -12,6 +12,11 @@ import SwiftSyntaxMacros
 ///  will expand to
 ///
 ///     (x + y, "x + y")
+///
+///
+
+// MARK: - ExpressionMacro
+
 public struct StringifyMacro: ExpressionMacro {
     public static func expansion(
         of node: some FreestandingMacroExpansionSyntax,
@@ -25,6 +30,49 @@ public struct StringifyMacro: ExpressionMacro {
     }
 }
 
+// MARK: - DeclarationMacro
+
+public struct StaticLetMacro: DeclarationMacro {
+    public static func expansion(
+        of node: some SwiftSyntax.FreestandingMacroExpansionSyntax,
+        in context: some SwiftSyntaxMacros.MacroExpansionContext
+    ) throws -> [SwiftSyntax.DeclSyntax] {
+        guard let argument = node.arguments.first?.expression else {
+            fatalError("Wrong argument!")
+        }
+        return
+            ["""
+            struct Const {
+                static let value = \(argument)
+            }
+            """]
+    }
+}
+
+/// Func With unique name.
+public enum FuncUniqueMacro: DeclarationMacro {
+    public static func expansion(
+        of node: some FreestandingMacroExpansionSyntax,
+        in context: some MacroExpansionContext
+    ) throws -> [DeclSyntax] {
+        print(node.arguments)
+        print(context)
+        let name = context.makeUniqueName("unique")
+        print(name)
+        return [
+            """
+            class MyClass {
+              func \(name)() {}
+            }
+            """,
+        ]
+    }
+}
+
+// MARK: - PeerMacro
+
+// MARK: - MemberMacro
+
 public enum CustomCodable: MemberMacro {
     public static func expansion(
         of node: AttributeSyntax,
@@ -36,8 +84,7 @@ public enum CustomCodable: MemberMacro {
         // Generate CodingKeys enum cases
         let cases = memberList.compactMap({ member -> String? in
             // Check if it's a property
-            guard
-                let propertyName = member.decl.as(VariableDeclSyntax.self)?.bindings.first?.pattern.as(IdentifierPatternSyntax.self)?.identifier.text
+            guard let propertyName = member.decl.as(VariableDeclSyntax.self)?.bindings.first?.pattern.as(IdentifierPatternSyntax.self)?.identifier.text
             else {
                 return nil
             }
@@ -78,5 +125,7 @@ struct CustomCodablePlugin: CompilerPlugin {
         StringifyMacro.self,
         CustomCodable.self,
         CustomCodingKeyMacro.self,
+        FuncUniqueMacro.self,
+        StaticLetMacro.self,
     ]
 }
