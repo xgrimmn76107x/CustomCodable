@@ -10,6 +10,9 @@ import CustomCodableMacros
 
 let testMacros: [String: Macro.Type] = [
     "stringify": StringifyMacro.self,
+    "CustomCodable": CustomCodable.self,
+    "CodableKey": CustomCodingKeyMacro.self,
+    "Constant": ConstantMacro.self,
 ]
 #endif
 
@@ -39,6 +42,51 @@ final class CustomCodableTests: XCTestCase {
             expandedSource: #"""
             ("Hello, \(name)", #""Hello, \(name)""#)
             """#,
+            macros: testMacros
+        )
+        #else
+        throw XCTSkip("macros are only supported when running tests for the host platform")
+        #endif
+    }
+    
+    func testMacroWithConstants() throws {
+        #if canImport(CustomCodableMacros)
+        assertMacroExpansion(
+            """
+            #Constant("app_icon")
+            """,
+            expandedSource: """
+            public static var appIcon = "app_icon"
+            """,
+            macros: testMacros
+        )
+        #else
+        throw XCTSkip("macros are only supported when running tests for the host platform")
+        #endif
+    }
+
+    func testMacroWithCodable() throws {
+        #if canImport(CustomCodableMacros)
+        assertMacroExpansion(
+            """
+            @CustomCodable
+            struct CustomCodableString: Decodable {
+                @CodableKey(name: "OtherName")
+                var propertyWithOtherName: String
+                var propertyWithSameName: Bool
+            }
+            """,
+            expandedSource: """
+            struct CustomCodableString: Decodable {
+                var propertyWithOtherName: String
+                var propertyWithSameName: Bool
+            
+                enum CodingKeys: String, CodingKey {
+                    case propertyWithOtherName = "OtherName"
+                    case propertyWithSameName
+                }
+            }
+            """,
             macros: testMacros
         )
         #else

@@ -34,9 +34,9 @@ public struct StringifyMacro: ExpressionMacro {
 
 public struct StaticLetMacro: DeclarationMacro {
     public static func expansion(
-        of node: some SwiftSyntax.FreestandingMacroExpansionSyntax,
-        in context: some SwiftSyntaxMacros.MacroExpansionContext
-    ) throws -> [SwiftSyntax.DeclSyntax] {
+        of node: some FreestandingMacroExpansionSyntax,
+        in context: some MacroExpansionContext
+    ) throws -> [DeclSyntax] {
         guard let argument = node.arguments.first?.expression else {
             fatalError("Wrong argument!")
         }
@@ -49,23 +49,30 @@ public struct StaticLetMacro: DeclarationMacro {
     }
 }
 
-/// Func With unique name.
-public enum FuncUniqueMacro: DeclarationMacro {
+public struct ConstantMacro: DeclarationMacro {
     public static func expansion(
         of node: some FreestandingMacroExpansionSyntax,
         in context: some MacroExpansionContext
     ) throws -> [DeclSyntax] {
-        print(node.arguments)
-        print(context)
-        let name = context.makeUniqueName("unique")
-        print(name)
-        return [
-            """
-            class MyClass {
-              func \(name)() {}
-            }
-            """,
-        ]
+        guard
+            let name = node.arguments.first?
+            .expression
+            .as(StringLiteralExprSyntax.self)?
+            .segments
+            .first?
+            .as(StringSegmentSyntax.self)?
+            .content.text
+        else {
+            fatalError("compiler bug: invalid arguments")
+        }
+        
+        let camelName = name.split(separator: "_")
+            .map { String($0) }
+            .enumerated()
+            .map { $0.offset > 0 ? $0.element.capitalized : $0.element.lowercased() }
+            .joined()
+        
+        return ["public static var \(raw: camelName) = \(literal: name)"]
     }
 }
 
@@ -125,7 +132,7 @@ struct CustomCodablePlugin: CompilerPlugin {
         StringifyMacro.self,
         CustomCodable.self,
         CustomCodingKeyMacro.self,
-        FuncUniqueMacro.self,
         StaticLetMacro.self,
+        ConstantMacro.self,
     ]
 }

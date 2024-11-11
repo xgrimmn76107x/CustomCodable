@@ -8,11 +8,11 @@ public macro stringify<T>(_ value: T) -> (T, String) = #externalMacro(module: "C
 
 // MARK: - DeclarationMacro
 
-@freestanding(declaration, names: named(MyClass))
-public macro FuncUnique() = #externalMacro(module: "CustomCodableMacros", type: "FuncUniqueMacro")
-
 @freestanding(declaration, names: named(Const))
 public macro declareStaticValue<T>(_ value: T) = #externalMacro(module: "CustomCodableMacros", type: "StaticLetMacro")
+
+@freestanding(declaration, names: arbitrary)
+public macro Constant(_ value: String) = #externalMacro(module: "CustomCodableMacros", type: "ConstantMacro")
 
 // MARK: - MemberMacro
 

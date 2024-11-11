@@ -12,14 +12,6 @@ print("The value \(result) was produced by the code \"\(code)\"")
 
 // MARK: - DeclarationMacro
 
-#FuncUnique
-
-func runFuncUniqueMacroPlayground() {
-    print("My Class Declaration with unique method: ", MyClass())
-}
-
-runFuncUniqueMacroPlayground()
-
 enum TestClass {
     #declareStaticValue(1)
     
@@ -29,6 +21,16 @@ enum TestClass {
 }
 
 TestClass.test()
+
+@MainActor
+public struct Constaints {
+    
+    #Constant("app_icon")
+    #Constant("empty_image")
+    #Constant("error_tip")
+}
+
+print("Constanints: \(Constaints.errorTip)")
 
 // MARK: - PeerMacro
 
