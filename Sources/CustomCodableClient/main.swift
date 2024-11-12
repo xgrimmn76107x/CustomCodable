@@ -23,8 +23,7 @@ enum TestClass {
 TestClass.test()
 
 @MainActor
-public struct Constaints {
-    
+public enum Constaints {
     #Constant("app_icon")
     #Constant("empty_image")
     #Constant("error_tip")
@@ -33,6 +32,11 @@ public struct Constaints {
 print("Constanints: \(Constaints.errorTip)")
 
 // MARK: - PeerMacro
+
+@AddCompletionHandler
+func fetchData() async -> String {
+    return "Hello world!"
+}
 
 // MARK: - MemberMacro
 
@@ -56,3 +60,31 @@ let json: [String: Any] = [
 let jsonData = try JSONSerialization.data(withJSONObject: json, options: [])
 let data = try JSONDecoder().decode(CustomCodableString.self, from: jsonData)
 print(data)
+
+// MARK: - Member Attribute
+
+@memberDeprecated
+struct SomeStruct {
+    var oldProperty: Int = 420
+    func oldMethod() {
+        print("This is an old method.")
+    }
+}
+
+let someStruct = SomeStruct()
+_ = someStruct.oldProperty
+someStruct.oldMethod()
+
+// MARK: - Accessor
+
+struct CustomData {
+    init(dictionary: [String: Any]) {
+        self.dictionary = dictionary
+    }
+
+    var dictionary: [String: Any]
+    @DictionaryStorageProperty
+    var age: Int
+}
+
+// MARK: - Extension

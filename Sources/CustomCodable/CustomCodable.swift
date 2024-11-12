@@ -21,5 +21,23 @@ public macro CustomCodable() = #externalMacro(module: "CustomCodableMacros", typ
 
 // MARK: - PeerMacro
 
+@attached(peer, names: overloaded)
+public macro AddCompletionHandler() = #externalMacro(module: "CustomCodableMacros", type: "AddCompletionHandlerMacro")
+
 @attached(peer)
 public macro CodableKey(name: String) = #externalMacro(module: "CustomCodableMacros", type: "CustomCodingKeyMacro")
+
+// MARK: - Member Attribute
+
+@attached(memberAttribute)
+public macro memberDeprecated() = #externalMacro(module: "CustomCodableMacros", type: "MemberDeprecatedMacro")
+
+// MARK: - Accessor
+
+@attached(accessor)
+public macro DictionaryStorageProperty(key: String? = nil) = #externalMacro(module: "CustomCodableMacros", type: "DictionaryStoragePropertyMacro")
+
+// MARK: - Extension
+
+@attached(extension, conformances: Equatable)
+public macro equatable() = #externalMacro(module: "CustomCodableMacros", type: "EquatableExtensionMacro")
