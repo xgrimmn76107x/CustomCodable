@@ -102,9 +102,9 @@ public struct AddCompletionHandlerMacro: PeerMacro {
         print(functionDecl.attributes)
 
         return [DeclSyntax(stringLiteral: """
-        func \(functionName)(onCompletion: @escaping (\(returnTypeSyntax)) async -> Void) {
+        func \(functionName)(onCompletion: @escaping @Sendable (\(returnTypeSyntax)) -> Void) {
             Task.detached {
-                await onCompletion(await \(functionName)())
+                onCompletion(await \(functionName)())
             }
         }
         """)]
