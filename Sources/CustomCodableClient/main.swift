@@ -45,34 +45,33 @@ func fetchData() async -> String {
 
 // MARK: - Accessor
 
-struct CustomData {
+class Person1 {
+    var dictionary: [String: Any]
     init(dictionary: [String: Any]) {
         self.dictionary = dictionary
     }
-
-    var dictionary: [String: Any]
+    
+    @DictionaryStorageProperty
+    var name: String
     @DictionaryStorageProperty
     var age: Int
 }
 
-var customData = CustomData(dictionary: [:])
-// print("customData: \(customData)")
-customData.age = 42
-// print("customData: \(customData)")
+var person1 = Person1(dictionary: [:])
+//print("person: \(person1.dictionary)")
+person1.age = 42
+//print("person: \(person1.dictionary)")
 
 // MARK: - Member Attribute
 
-@memberDeprecated
-struct SomeStruct {
-    var oldProperty: Int = 420
-    func oldMethod() {
-//        print("This is an old method.")
-    }
-}
+class ViewController {}
 
-let someStruct = SomeStruct()
-_ = someStruct.oldProperty
-someStruct.oldMethod()
+@ObjCMembers
+extension ViewController {
+    func clickedDoneButton() {}
+    func clickedPreviousButton() {}
+    func clickedNextButton() {}
+}
 
 // MARK: - MemberMacro
 
@@ -110,23 +109,38 @@ let test2: TestEqutable = TestEqutable.test2
 
 if test1 == test2 {}
 
-//@CustomCodable
-//struct CustomCodableString2 {
+// MARK: - Member, Extension
+
+// @CustomCodable
+// struct CustomCodableString2 {
 //    @CodableKey(name: "OtherName")
 //    var propertyWithOtherName: String
 //    var propertyWithSameName: Bool
-//    
+//
 //    init(from decoder: any Decoder) throws {
 //        let container = try decoder.container(keyedBy: CodingKeys.self)
 //        propertyWithOtherName = try container.decode(String.self, forKey: .propertyWithOtherName)
 //        propertyWithSameName = try container.decode(Bool.self, forKey: .propertyWithSameName)
 //    }
-//}
+// }
 //
-//let json2: [String: Any] = [
+// let json2: [String: Any] = [
 //    "OtherName": "1",
 //    "propertyWithSameName": true,
-//]
-//let jsonData2 = try JSONSerialization.data(withJSONObject: json2, options: [])
-//let data2 = try JSONDecoder().decode(CustomCodableString2.self, from: jsonData2)
+// ]
+// let jsonData2 = try JSONSerialization.data(withJSONObject: json2, options: [])
+// let data2 = try JSONDecoder().decode(CustomCodableString2.self, from: jsonData2)
 // print(data2)
+
+// MARK: - Accessor, MemberAttribute, Member
+
+//@DictionaryStorage
+//class Person2 {
+//    var name: String
+//    var age: Int
+//}
+//
+//var person2 = Person2()
+//print("person: \(person2.dictionary)")
+//person2.age = 42
+//print("person: \(person2.dictionary)")

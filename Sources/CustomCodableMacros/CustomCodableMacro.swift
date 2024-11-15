@@ -170,14 +170,14 @@ public struct DictionaryStoragePropertyMacro: AccessorMacro {
 
 // MARK: - Member Attribute
 
-public enum MemberDeprecatedMacro: MemberAttributeMacro {
+public enum ObjCMembersMacro: MemberAttributeMacro {
     public static func expansion(
         of node: AttributeSyntax,
         attachedTo declaration: some DeclGroupSyntax,
         providingAttributesFor member: some DeclSyntaxProtocol,
         in context: some MacroExpansionContext
     ) throws -> [AttributeSyntax] {
-        return ["@available(*, deprecated)"]
+        return ["@objc"]
     }
 }
 
@@ -263,6 +263,7 @@ struct CustomCodablePlugin: CompilerPlugin {
         AddCompletionHandlerMacro.self,
         DictionaryStoragePropertyMacro.self,
         EquatableExtensionMacro.self,
-        MemberDeprecatedMacro.self,
+        ObjCMembersMacro.self,
+        DictionaryStorageMacro.self,
     ]
 }
