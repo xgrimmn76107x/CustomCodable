@@ -1,3 +1,4 @@
+import Foundation
 import SwiftCompilerPlugin
 import SwiftSyntax
 import SwiftSyntaxBuilder
@@ -27,6 +28,25 @@ public struct StringifyMacro: ExpressionMacro {
         }
 
         return "(\(argument), \(literal: argument.description))"
+    }
+}
+
+public enum URLMacro: ExpressionMacro {
+    public static func expansion(
+        of node: some FreestandingMacroExpansionSyntax,
+        in context: some MacroExpansionContext
+    ) throws -> ExprSyntax {
+        guard let argument = node.arguments.first?.expression,
+              let segments = argument.as(StringLiteralExprSyntax.self)?.segments,
+              segments.count == 1,
+              case .stringSegment(let literalSegment)? = segments.first
+        else {
+            throw CustomError.message("#URL requires a static string literal")
+        }
+        guard let _ = URL(string: literalSegment.content.text) else {
+            throw CustomError.message("malformed url: \(argument)")
+        }
+        return "URL(string: \(argument))!"
     }
 }
 
@@ -111,6 +131,56 @@ public struct AddCompletionHandlerMacro: PeerMacro {
     }
 }
 
+// MARK: - Accessor
+
+public struct DictionaryStoragePropertyMacro: AccessorMacro {
+    public static func expansion(
+        of node: AttributeSyntax,
+        providingAccessorsOf declaration: some DeclSyntaxProtocol,
+        in context: some MacroExpansionContext
+    ) throws -> [AccessorDeclSyntax] {
+        // Extract information from the stored property declaration
+        guard let variableDecl = declaration.as(VariableDeclSyntax.self),
+              let patternBinding = variableDecl.bindings.first,
+              var identifier = patternBinding.pattern.as(IdentifierPatternSyntax.self)?.identifier.text,
+              let identifierType = patternBinding.typeAnnotation?.type.as(IdentifierTypeSyntax.self)?.name.text else {
+            return []
+        }
+        // Extract custom key from macro argument if provided
+        if let attributeSyntax = variableDecl.attributes.first?.as(AttributeSyntax.self),
+           let argument = attributeSyntax.arguments?.as(LabeledExprListSyntax.self)?.first,
+           let key = argument.expression.as(StringLiteralExprSyntax.self)?.segments.first?.as(StringSegmentSyntax.self)?.content.text {
+            identifier = key
+        }
+        // Generate custom accessors for the stored property
+        return [
+            AccessorDeclSyntax(stringLiteral: """
+            get {
+               dictionary["\(identifier)"]! as! \(identifierType)
+            }
+            """),
+            AccessorDeclSyntax(stringLiteral: """
+            set {
+            dictionary["\(identifier)"] = newValue
+            }
+            """),
+        ]
+    }
+}
+
+// MARK: - Member Attribute
+
+public enum MemberDeprecatedMacro: MemberAttributeMacro {
+    public static func expansion(
+        of node: AttributeSyntax,
+        attachedTo declaration: some DeclGroupSyntax,
+        providingAttributesFor member: some DeclSyntaxProtocol,
+        in context: some MacroExpansionContext
+    ) throws -> [AttributeSyntax] {
+        return ["@available(*, deprecated)"]
+    }
+}
+
 // MARK: - MemberMacro
 
 public enum CustomCodable: MemberMacro {
@@ -149,6 +219,13 @@ public enum CustomCodable: MemberMacro {
     }
 }
 
+//extension CustomCodable: ExtensionMacro {
+//    public static func expansion(of node: AttributeSyntax, attachedTo declaration: some DeclGroupSyntax, providingExtensionsOf type: some TypeSyntaxProtocol, conformingTo protocols: [TypeSyntax], in context: some MacroExpansionContext) throws -> [ExtensionDeclSyntax] {
+//        let equatableExtension = try ExtensionDeclSyntax("extension \(type.trimmed): Decodable {}")
+//        return [equatableExtension]
+//    }
+//}
+
 public struct CustomCodingKeyMacro: PeerMacro {
     public static func expansion(
         of node: AttributeSyntax,
@@ -156,56 +233,6 @@ public struct CustomCodingKeyMacro: PeerMacro {
         in context: some MacroExpansionContext
     ) throws -> [DeclSyntax] {
         []
-    }
-}
-
-// MARK: - Member Attribute
-
-public enum MemberDeprecatedMacro: MemberAttributeMacro {
-    public static func expansion(
-        of node: AttributeSyntax,
-        attachedTo declaration: some DeclGroupSyntax,
-        providingAttributesFor member: some DeclSyntaxProtocol,
-        in context: some MacroExpansionContext
-    ) throws -> [AttributeSyntax] {
-        return ["@available(*, deprecated)"]
-    }
-}
-
-// MARK: - Accessor
-
-public struct DictionaryStoragePropertyMacro: AccessorMacro {
-    public static func expansion(
-        of node: AttributeSyntax,
-        providingAccessorsOf declaration: some DeclSyntaxProtocol,
-        in context: some MacroExpansionContext
-    ) throws -> [AccessorDeclSyntax] {
-        // Extract information from the stored property declaration
-        guard let variableDecl = declaration.as(VariableDeclSyntax.self),
-              let patternBinding = variableDecl.bindings.first,
-              var identifier = patternBinding.pattern.as(IdentifierPatternSyntax.self)?.identifier.text,
-              let identifierType = patternBinding.typeAnnotation?.type.as(IdentifierTypeSyntax.self)?.name.text else {
-            return []
-        }
-        // Extract custom key from macro argument if provided
-        if let attributeSyntax = variableDecl.attributes.first?.as(AttributeSyntax.self),
-           let argument = attributeSyntax.arguments?.as(LabeledExprListSyntax.self)?.first,
-           let key = argument.expression.as(StringLiteralExprSyntax.self)?.segments.first?.as(StringSegmentSyntax.self)?.content.text {
-            identifier = key
-        }
-        // Generate custom accessors for the stored property
-        return [
-            AccessorDeclSyntax(stringLiteral: """
-            get {
-               dictionary["\(identifier)"]! as! \(identifierType)
-            }
-            """),
-            AccessorDeclSyntax(stringLiteral: """
-            set {
-            dictionary["\(identifier)"] = newValue
-            }
-            """),
-        ]
     }
 }
 
@@ -228,6 +255,7 @@ public enum EquatableExtensionMacro: ExtensionMacro {
 struct CustomCodablePlugin: CompilerPlugin {
     let providingMacros: [Macro.Type] = [
         StringifyMacro.self,
+        URLMacro.self,
         CustomCodable.self,
         CustomCodingKeyMacro.self,
         StaticLetMacro.self,
