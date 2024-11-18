@@ -29,10 +29,7 @@ extension DictionaryStorageMacro: MemberAttributeMacro {
         providingAttributesFor member: some DeclSyntaxProtocol,
         in context: some MacroExpansionContext
     ) throws -> [AttributeSyntax] {
-        guard member.as(VariableDeclSyntax.self) != nil
-        else {
-            return []
-        }
+        guard member.is(VariableDeclSyntax.self) else { return [] }
 
         return [
             AttributeSyntax(

@@ -221,8 +221,8 @@ public enum CustomCodable: MemberMacro {
 
 //extension CustomCodable: ExtensionMacro {
 //    public static func expansion(of node: AttributeSyntax, attachedTo declaration: some DeclGroupSyntax, providingExtensionsOf type: some TypeSyntaxProtocol, conformingTo protocols: [TypeSyntax], in context: some MacroExpansionContext) throws -> [ExtensionDeclSyntax] {
-//        let equatableExtension = try ExtensionDeclSyntax("extension \(type.trimmed): Decodable {}")
-//        return [equatableExtension]
+//        let decodableExtension = try ExtensionDeclSyntax("extension \(type.trimmed): Decodable {}")
+//        return [decodableExtension]
 //    }
 //}
 

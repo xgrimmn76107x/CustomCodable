@@ -144,3 +144,50 @@ if test1 == test2 {}
 //print("person: \(person2.dictionary)")
 //person2.age = 42
 //print("person: \(person2.dictionary)")
+
+
+// MARK: - Property Wrapper
+
+//@propertyWrapper
+//struct DictionaryBacked<Value> {
+//    private let key: String
+//    private var storage: [String: Any]
+//    
+//    init(key: String, storage: [String: Any]) {
+//        self.key = key
+//        self.storage = storage
+//    }
+//    
+//    var wrappedValue: Value {
+//        get {
+//            guard let value = storage[key] as? Value else {
+//                fatalError("Value for key '\(key)' is not of type \(Value.self) or is missing")
+//            }
+//            return value
+//        }
+//        set {
+//            storage[key] = newValue
+//        }
+//    }
+//}
+//
+//@MainActor
+//class TestSingle {
+//    static let shared = TestSingle()
+//    var dictionary: [String: Any] = [:]
+//}
+//private var dictionary: [String: Any] = [:]
+//
+//@MainActor
+//class DictionaryPropertyWrapper {
+//    @DictionaryBacked(key: "name", storage: TestSingle.shared.dictionary)
+//    static var name: String
+//    
+//    @DictionaryBacked(key: "age", storage: dictionary)
+//    static var age: Int
+//}
+//
+//DictionaryPropertyWrapper.name = "John"
+//DictionaryPropertyWrapper.age = 42
+//print("TestSingle.shared.dictionary: \(TestSingle.shared.dictionary)")
+//print("dictionary: \(dictionary)")
