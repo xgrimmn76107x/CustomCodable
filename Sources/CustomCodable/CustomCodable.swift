@@ -15,14 +15,18 @@ public macro URL(_ stringLiteral: String) -> URL = #externalMacro(module: "Custo
 
 // MARK: - DeclarationMacro
 
+// Declarations with a specific fixed name: named(<declaration-name>)
 @freestanding(declaration, names: named(Const))
 public macro declareStaticValue<T>(_ value: T) = #externalMacro(module: "CustomCodableMacros", type: "StaticLetMacro")
 
+
+// Declarations whose names cannot be described statically, for example because they are derived from other inputs: arbitrary
 @freestanding(declaration, names: arbitrary)
 public macro Constant(_ value: String) = #externalMacro(module: "CustomCodableMacros", type: "ConstantMacro")
 
 // MARK: - PeerMacro
 
+// Declarations that have the same base name as the declaration to which the macro is attached, and are therefore overloaded with it: overloaded.
 @attached(peer, names: overloaded)
 public macro AddCompletionHandler() = #externalMacro(module: "CustomCodableMacros", type: "AddCompletionHandlerMacro")
 
