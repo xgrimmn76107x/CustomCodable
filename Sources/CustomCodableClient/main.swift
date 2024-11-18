@@ -58,9 +58,9 @@ class Person1 {
 }
 
 var person1 = Person1(dictionary: [:])
-//print("person: \(person1.dictionary)")
+// print("person: \(person1.dictionary)")
 person1.age = 42
-//print("person: \(person1.dictionary)")
+// print("person: \(person1.dictionary)")
 
 // MARK: - Member Attribute
 
@@ -134,30 +134,29 @@ if test1 == test2 {}
 
 // MARK: - Accessor, MemberAttribute, Member
 
-//@DictionaryStorage
-//class Person2 {
+// @DictionaryStorage
+// class Person2 {
 //    var name: String
 //    var age: Int
-//}
+// }
 //
-//var person2 = Person2()
-//print("person: \(person2.dictionary)")
-//person2.age = 42
-//print("person: \(person2.dictionary)")
-
+// var person2 = Person2()
+// print("person: \(person2.dictionary)")
+// person2.age = 42
+// print("person: \(person2.dictionary)")
 
 // MARK: - Property Wrapper
 
-//@propertyWrapper
-//struct DictionaryBacked<Value> {
+// @propertyWrapper
+// struct DictionaryBacked<Value> {
 //    private let key: String
 //    private var storage: [String: Any]
-//    
+//
 //    init(key: String, storage: [String: Any]) {
 //        self.key = key
 //        self.storage = storage
 //    }
-//    
+//
 //    var wrappedValue: Value {
 //        get {
 //            guard let value = storage[key] as? Value else {
@@ -169,25 +168,25 @@ if test1 == test2 {}
 //            storage[key] = newValue
 //        }
 //    }
-//}
+// }
 //
-//@MainActor
-//class TestSingle {
+// @MainActor
+// class TestSingle {
 //    static let shared = TestSingle()
 //    var dictionary: [String: Any] = [:]
-//}
-//private var dictionary: [String: Any] = [:]
+// }
+// private var dictionary: [String: Any] = [:]
 //
-//@MainActor
-//class DictionaryPropertyWrapper {
+// @MainActor
+// class DictionaryPropertyWrapper {
 //    @DictionaryBacked(key: "name", storage: TestSingle.shared.dictionary)
 //    static var name: String
-//    
+//
 //    @DictionaryBacked(key: "age", storage: dictionary)
 //    static var age: Int
-//}
+// }
 //
-//DictionaryPropertyWrapper.name = "John"
-//DictionaryPropertyWrapper.age = 42
-//print("TestSingle.shared.dictionary: \(TestSingle.shared.dictionary)")
-//print("dictionary: \(dictionary)")
+// DictionaryPropertyWrapper.name = "John"
+// DictionaryPropertyWrapper.age = 42
+// print("TestSingle.shared.dictionary: \(TestSingle.shared.dictionary)")
+// print("dictionary: \(dictionary)")

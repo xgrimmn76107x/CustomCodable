@@ -41,7 +41,7 @@ public macro ObjCMembers() = #externalMacro(module: "CustomCodableMacros", type:
 
 // MARK: - MemberMacro
 
-//@attached(extension, conformances: Decodable)
+// @attached(extension, conformances: Decodable)
 @attached(member, names: named(CodingKeys))
 public macro CustomCodable() = #externalMacro(module: "CustomCodableMacros", type: "CustomCodable")
 
@@ -50,20 +50,16 @@ public macro CustomCodable() = #externalMacro(module: "CustomCodableMacros", typ
 @attached(extension, conformances: Equatable)
 public macro equatable() = #externalMacro(module: "CustomCodableMacros", type: "EquatableExtensionMacro")
 
-
-
-
-
 /// Wrap up the stored properties of the given type in a dictionary,
 /// turning them into computed properties.
 ///
 /// This macro composes three different kinds of macro expansion:
 ///   * Member-attribute macro expansion, to put itself on all stored properties
 ///     of the type it is attached to.
-///   * Member macro expansion, to add a `_storage` property with the actual
+///   * Member macro expansion, to add a `dictionary` property with the actual
 ///     dictionary.
 ///   * Accessor macro expansion, to turn the stored properties into computed
-///     properties that look for values in the `_storage` property.
+///     properties that look for values in the `dictionary` property.
 @attached(member, names: named(dictionary))
 @attached(memberAttribute)
 public macro DictionaryStorage() = #externalMacro(module: "CustomCodableMacros", type: "DictionaryStorageMacro")

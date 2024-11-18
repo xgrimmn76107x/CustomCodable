@@ -107,14 +107,14 @@ public struct AddCompletionHandlerMacro: PeerMacro {
     ) throws -> [DeclSyntax] {
         guard
             let functionDecl = declaration.as(FunctionDeclSyntax.self) else {
-            // TODO: throw an error here
+            context.diagnose(AddCompletionMacroDiagnostic.requiresFunction.diagnose(at: node))
             return []
         }
 
         guard functionDecl.signature.parameterClause.parameters.count == 0,
               let _ = functionDecl.signature.effectSpecifiers?.asyncSpecifier,
               let returnTypeSyntax = functionDecl.signature.returnClause?.type.as(IdentifierTypeSyntax.self)?.name.text else {
-            // TODO: throw an error here
+            context.diagnose(AddCompletionMacroDiagnostic.noReturn.diagnose(at: node))
             return []
         }
 
@@ -198,7 +198,7 @@ public enum CustomCodable: MemberMacro {
         }
         
         guard declaration.is(StructDeclSyntax.self) || declaration.is(ClassDeclSyntax.self) else {
-            context.diagnose(CodingKeysMacroDiagnostic.requiresStruct.diagnose(at: node))
+            context.diagnose(CodingKeysMacroDiagnostic.requiresStructOrClass.diagnose(at: node))
             return []
         }
         // Generate CodingKeys enum cases

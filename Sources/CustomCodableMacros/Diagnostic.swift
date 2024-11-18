@@ -6,18 +6,16 @@
 //
 
 import Foundation
-import SwiftSyntax
 import SwiftDiagnostics
+import SwiftSyntax
 
 public enum CustomError: LocalizedError {
     case message(String)
 }
 
 public enum CodingKeysMacroDiagnostic {
-    case nonexistentProperty(structName: String, propertyName: String)
     case noArgument
-    case requiresStruct
-    case invalidArgument
+    case requiresStructOrClass
 }
 
 extension CodingKeysMacroDiagnostic: DiagnosticMessage {
@@ -27,23 +25,40 @@ extension CodingKeysMacroDiagnostic: DiagnosticMessage {
 
     public var message: String {
         switch self {
-        case let .nonexistentProperty(structName, propertyName):
-            return "Property \(propertyName) does not exist in \(structName)"
-
         case .noArgument:
             return "Cannot find argument"
-
-        case .requiresStruct:
+        case .requiresStructOrClass:
             return "'CodingKeys' macro can only be applied to struct."
-
-        case .invalidArgument:
-            return "Invalid Argument"
         }
     }
 
     public var severity: DiagnosticSeverity { .error }
 
     public var diagnosticID: MessageID {
-        MessageID(domain: "Swift", id: "CodingKeysMacro.\(self)")
+        MessageID(domain: "SwiftCodingKeysMacroDiagnostic", id: "CodingKeysMacro.\(self)")
+    }
+}
+
+public enum AddCompletionMacroDiagnostic: DiagnosticMessage {
+    case requiresFunction
+    case noReturn
+    
+    func diagnose(at node: some SyntaxProtocol) -> Diagnostic {
+        Diagnostic(node: Syntax(node), message: self)
+    }
+    
+    public var message: String {
+        switch self {
+        case .requiresFunction:
+            return "'AddCompletion' macro can only be applied to function."
+        case .noReturn:
+            return "'AddCompletion' macro requires a return value."
+        }
+    }
+    
+    public var severity: DiagnosticSeverity { .error }
+    
+    public var diagnosticID: MessageID {
+        MessageID(domain: "SwiftAddCompletionMacroDiagnostic", id: "AddCompletionMacro.\(self)")
     }
 }
