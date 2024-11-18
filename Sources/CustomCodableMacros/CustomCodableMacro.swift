@@ -1,5 +1,6 @@
 import Foundation
 import SwiftCompilerPlugin
+import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
@@ -191,6 +192,15 @@ public enum CustomCodable: MemberMacro {
     ) throws -> [DeclSyntax] {
         // Extract members of the declaration
         let memberList = declaration.memberBlock.members
+        guard !memberList.isEmpty else {
+            context.diagnose(CodingKeysMacroDiagnostic.noArgument.diagnose(at: node))
+            return []
+        }
+        
+        guard declaration.is(StructDeclSyntax.self) || declaration.is(ClassDeclSyntax.self) else {
+            context.diagnose(CodingKeysMacroDiagnostic.requiresStruct.diagnose(at: node))
+            return []
+        }
         // Generate CodingKeys enum cases
         let cases = memberList.compactMap({ member -> String? in
             // Check if it's a property
@@ -209,6 +219,10 @@ public enum CustomCodable: MemberMacro {
                 return "case \(propertyName)"
             }
         })
+        guard !cases.isEmpty else {
+            context.diagnose(CodingKeysMacroDiagnostic.noArgument.diagnose(at: node))
+            return []
+        }
         // Construct CodingKeys enum
         let codingKeys: DeclSyntax = """
         enum CodingKeys: String, CodingKey {
@@ -219,12 +233,12 @@ public enum CustomCodable: MemberMacro {
     }
 }
 
-//extension CustomCodable: ExtensionMacro {
+// extension CustomCodable: ExtensionMacro {
 //    public static func expansion(of node: AttributeSyntax, attachedTo declaration: some DeclGroupSyntax, providingExtensionsOf type: some TypeSyntaxProtocol, conformingTo protocols: [TypeSyntax], in context: some MacroExpansionContext) throws -> [ExtensionDeclSyntax] {
 //        let decodableExtension = try ExtensionDeclSyntax("extension \(type.trimmed): Decodable {}")
 //        return [decodableExtension]
 //    }
-//}
+// }
 
 public struct CustomCodingKeyMacro: PeerMacro {
     public static func expansion(
