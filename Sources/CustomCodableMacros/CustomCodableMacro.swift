@@ -201,6 +201,7 @@ public enum CustomCodable: MemberMacro {
             context.diagnose(CodingKeysMacroDiagnostic.requiresStructOrClass.diagnose(at: node))
             return []
         }
+//        return CodingKeysGenerator(memberList: memberList).generate()
         // Generate CodingKeys enum cases
         let cases = memberList.compactMap({ member -> String? in
             // Check if it's a property

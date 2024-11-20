@@ -13,6 +13,7 @@ let testMacros: [String: Macro.Type] = [
     "CustomCodable": CustomCodable.self,
     "CodableKey": CustomCodingKeyMacro.self,
     "Constant": ConstantMacro.self,
+    "URL": URLMacro.self,
 ]
 #endif
 
@@ -41,6 +42,22 @@ final class CustomCodableTests: XCTestCase {
             """#,
             expandedSource: #"""
             ("Hello, \(name)", #""Hello, \(name)""#)
+            """#,
+            macros: testMacros
+        )
+        #else
+        throw XCTSkip("macros are only supported when running tests for the host platform")
+        #endif
+    }
+    
+    func testURLWithMacro() throws {
+        #if canImport(CustomCodableMacros)
+        assertMacroExpansion(
+            #"""
+            #URL("https://swift.org/")
+            """#,
+            expandedSource: #"""
+            URL(string: "https://swift.org/")!
             """#,
             macros: testMacros
         )
